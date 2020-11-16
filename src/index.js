@@ -1,3 +1,5 @@
+// 写时复制，读时 merge(获取最新值)
+
 // produce(currentState, producer: (draftState) => void): nextState
 const INTERNAL_STATE_KEY = Symbol('state')
 
