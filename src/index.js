@@ -64,7 +64,7 @@ function proxy(originalValue, onWrite) {
 console.log('[proxy]    ', originalValue)
   // 创建一份干净的 draft 值
   const draftValue = Array.isArray(originalValue) ? [] : { ...originalValue }
-  const proxiedKeyMap = Object.create(null)
+  const proxiedKeyMap = new Map()
   // 存放代理关系及拷贝值
   const draftState = {
     mutated: false,
@@ -82,15 +82,16 @@ console.log('[proxy]    ', originalValue)
         return draftState
       }
       // 优先走已创建的代理
-      if (key in proxiedKeyMap) {
-        return proxiedKeyMap[key]
+      if (proxiedKeyMap.has(key)) {
+        return proxiedKeyMap.get(key)
       }
 
       // 代理属性访问
       if (typeof originalValue[key] === 'object' && originalValue[key] !== null) {
         // 不为基本值类型的现有属性，创建下一层代理
-        proxiedKeyMap[key] = proxyProp(key, originalValue[key], draftState)
-        return proxiedKeyMap[key]
+        const prop = proxyProp(key, originalValue[key], draftState)
+        proxiedKeyMap.set(key, prop)
+        return prop
       }
 
       // 改过，直接从 draft 取最新状态
@@ -102,7 +103,8 @@ console.log('[proxy]    ', originalValue)
       // 监听修改，用新值重写原值
       // 如果新值不为基本值类型，创建下一层代理
       if (typeof value === 'object') {
-        proxiedKeyMap[key] = proxyProp(key, value, draftState)
+        const prop = proxyProp(key, value, draftState)
+        proxiedKeyMap.set(key, prop)
       }
       // 第一次写时复制
       copyOnWrite(draftState)
