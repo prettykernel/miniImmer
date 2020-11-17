@@ -91,11 +91,11 @@ console.log('[proxy]    ', originalValue)
         // 不为基本值类型的现有属性，创建下一层代理
         proxiedKeyMap[key] = proxyProp(key, originalValue[key], draftState)
         return proxiedKeyMap[key]
-      } else {
-        // 改过，直接从 draft 取最新状态
-        // 不存在的，或者值为基本值的现有属性，代理到原值
-        return draftState.mutated ? draftValue[key] : Reflect.get(target, key, receiver)
       }
+
+      // 改过，直接从 draft 取最新状态
+      // 不存在的，或者值为基本值的现有属性，代理到原值
+      return draftState.mutated ? draftValue[key] : Reflect.get(target, key, receiver)
     },
     set(target, key, value) {
         console.log('[set]      ', target, key)
